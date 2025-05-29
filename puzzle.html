@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 Puzzle</title> <!-- Titel angepasst -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #f0f0f0;
+        }
+        #game-area {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(5, 100px); /* Geändert */
+            grid-template-rows: repeat(5, 100px);    /* Geändert */
+            border: 2px solid #333;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .tile {
+            width: 100px;
+            height: 100px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            background-size: 500px 500px; /* Geändert */
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px; /* Ggf. Schriftgröße anpassen für mehr Kacheln */
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease-in-out;
+        }
+        .tile:hover {
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+        .empty {
+            background-color: #ddd;
+            background-image: none !important;
+            border: 1px solid #aaa;
+            cursor: default;
+        }
+        #controls {
+            margin-bottom: 10px;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: green;
+            min-height: 1.5em;
+        }
+        #reference-image-container {
+            border: 2px solid #333;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+            width: 500px;  /* Geändert */
+            height: 500px; /* Geändert */
+        }
+        #reference-image-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <h1>24 Puzzle</h1> <!-- Titel angepasst -->
+    <div id="controls">
+        <label for="imageUpload">Wähle ein JPEG-Bild (alternativ wird "puzzle_image.jpg" aus dem Verzeichnis geladen):</label>
+        <input type="file" id="imageUpload" accept="image/jpeg">
+    </div>
+
+    <div id="game-area">
+        <div id="puzzle-container"></div>
+        <div id="reference-image-container">
+            <img id="reference-img" src="#" alt="Vorlage" style="display:none;">
+        </div>
+    </div>
+
+    <div id="message"></div>
+
+    <script>
+        const GRID_SIZE = 5; // Geändert
+        const TILE_SIZE = 100; // px
+        const DEFAULT_IMAGE_NAME = "puzzle_image.jpg";
+
+        let tiles = [];
+        let emptyPos = { r: GRID_SIZE - 1, c: GRID_SIZE - 1 };
+        let imageUrl = null;
+        let imageLoaded = false;
+
+        const puzzleContainer = document.getElementById('puzzle-container');
+        const messageDiv = document.getElementById('message');
+        const imageUpload = document.getElementById('imageUpload');
+        const referenceImg = document.getElementById('reference-img');
+        const referenceContainer = document.getElementById('reference-image-container');
+
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type === "image/jpeg") {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imageUrl = e.target.result; // Data URL vom Upload
+                    imageLoaded = true;
+                    referenceImg.src = imageUrl;
+                    referenceImg.style.display = 'block';
+                    referenceContainer.style.display = 'block';
+                    messageDiv.textContent = 'Bild hochgeladen. Puzzle wird gemischt...';
+                    initializePuzzle();
+                }
+                reader.readAsDataURL(file);
+            } else {
+                if (!imageLoaded && DEFAULT_IMAGE_NAME) { 
+                     messageDiv.textContent = `Keine Datei ausgewählt oder ungültig. Standardbild "${DEFAULT_IMAGE_NAME}" wird versucht oder bitte neu hochladen.`;
+                } else if (!imageLoaded) {
+                    messageDiv.textContent = 'Bitte lade ein Bild, um zu starten.';
+                }
+            }
+        });
+
+        function initializePuzzle() {
+            tiles = [];
+            let num = 1;
+            for (let r = 0; r < GRID_SIZE; r++) {
+                tiles[r] = [];
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (r === GRID_SIZE - 1 && c === GRID_SIZE - 1) {
+                        tiles[r][c] = null;
+                    } else {
+                        tiles[r][c] = num++;
+                    }
+                }
+            }
+            emptyPos = { r: GRID_SIZE - 1, c: GRID_SIZE - 1 };
+            shuffleTiles();
+            drawPuzzle();
+            if (imageLoaded) {
+                messageDiv.textContent = ''; 
+            }
+        }
+
+        function drawPuzzle() {
+            puzzleContainer.innerHTML = '';
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const tileValue = tiles[r][c];
+                    const tileDiv = document.createElement('div');
+                    tileDiv.classList.add('tile');
+
+                    if (tileValue === null) {
+                        tileDiv.classList.add('empty');
+                    } else {
+                        if (imageLoaded && imageUrl) {
+                            const originalRow = Math.floor((tileValue - 1) / GRID_SIZE);
+                            const originalCol = (tileValue - 1) % GRID_SIZE;
+                            tileDiv.style.backgroundImage = `url(${imageUrl})`;
+                            tileDiv.style.backgroundPosition = `-${originalCol * TILE_SIZE}px -${originalRow * TILE_SIZE}px`;
+                        } else {
+                            tileDiv.textContent = tileValue; 
+                        }
+                        tileDiv.addEventListener('click', () => handleTileClick(r, c));
+                    }
+                    puzzleContainer.appendChild(tileDiv);
+                }
+            }
+        }
+
+        function handleTileClick(r, c) {
+            if (!imageLoaded) {
+                messageDiv.textContent = 'Bitte lade zuerst ein Bild oder stelle sicher, dass "' + DEFAULT_IMAGE_NAME + '" im Verzeichnis existiert.';
+                return;
+            }
+            const dr = Math.abs(r - emptyPos.r);
+            const dc = Math.abs(c - emptyPos.c);
+
+            if (r === emptyPos.r && c !== emptyPos.c) { 
+                const step = (c < emptyPos.c) ? 1 : -1;
+                for (let currentCol = emptyPos.c; currentCol !== c; currentCol -= step) {
+                    tiles[emptyPos.r][currentCol] = tiles[emptyPos.r][currentCol - step];
+                }
+            } else if (c === emptyPos.c && r !== emptyPos.r) { 
+                const step = (r < emptyPos.r) ? 1 : -1;
+                for (let currentRow = emptyPos.r; currentRow !== r; currentRow -= step) {
+                    tiles[currentRow][emptyPos.c] = tiles[currentRow - step][emptyPos.c];
+                }
+            } else {
+                return;
+            }
+
+            tiles[r][c] = null;
+            emptyPos = { r, c };
+
+            drawPuzzle();
+            checkCompletion();
+        }
+
+        function shuffleTiles() {
+            let moves = 0;
+            const maxShuffleMoves = GRID_SIZE * GRID_SIZE * 10; // Mehr Züge für größeres Puzzle
+
+            let tempNum = 1;
+            let tempTiles = [];
+             for (let r_idx = 0; r_idx < GRID_SIZE; r_idx++) {
+                tempTiles[r_idx] = [];
+                for (let c_idx = 0; c_idx < GRID_SIZE; c_idx++) {
+                    if (r_idx === GRID_SIZE - 1 && c_idx === GRID_SIZE - 1) {
+                        tempTiles[r_idx][c_idx] = null;
+                    } else {
+                        tempTiles[r_idx][c_idx] = tempNum++;
+                    }
+                }
+            }
+            let tempEmptyPos = { r: GRID_SIZE - 1, c: GRID_SIZE - 1 };
+
+            while(moves < maxShuffleMoves) {
+                const possibleMoves = [];
+                if (tempEmptyPos.r > 0) possibleMoves.push({r: tempEmptyPos.r - 1, c: tempEmptyPos.c});
+                if (tempEmptyPos.r < GRID_SIZE - 1) possibleMoves.push({r: tempEmptyPos.r + 1, c: tempEmptyPos.c});
+                if (tempEmptyPos.c > 0) possibleMoves.push({r: tempEmptyPos.r, c: tempEmptyPos.c - 1});
+                if (tempEmptyPos.c < GRID_SIZE - 1) possibleMoves.push({r: tempEmptyPos.r, c: tempEmptyPos.c + 1});
+
+                if (possibleMoves.length > 0) {
+                    const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                    tempTiles[tempEmptyPos.r][tempEmptyPos.c] = tempTiles[randomMove.r][randomMove.c];
+                    tempTiles[randomMove.r][randomMove.c] = null;
+                    tempEmptyPos = randomMove;
+                    moves++;
+                }
+            }
+            tiles = tempTiles;
+            emptyPos = tempEmptyPos;
+        }
+
+
+        function checkCompletion() {
+            let n = 1;
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (r === GRID_SIZE - 1 && c === GRID_SIZE - 1) {
+                        if (tiles[r][c] !== null) return false;
+                    } else {
+                        if (tiles[r][c] !== n) return false;
+                        n++;
+                    }
+                }
+            }
+            messageDiv.textContent = "Glückwunsch! Du hast das Puzzle gelöst!";
+            puzzleContainer.querySelectorAll('.tile:not(.empty)').forEach(tile => {
+                const newTile = tile.cloneNode(true);
+                tile.parentNode.replaceChild(newTile, tile);
+                newTile.style.cursor = 'default';
+            });
+            return true;
+        }
+
+        function attemptLoadDefaultImage() {
+            const img = new Image();
+            img.onload = () => {
+                imageUrl = DEFAULT_IMAGE_NAME; 
+                imageLoaded = true;
+                referenceImg.src = imageUrl; 
+                referenceImg.style.display = 'block';
+                referenceContainer.style.display = 'block';
+                messageDiv.textContent = `Standardbild "${DEFAULT_IMAGE_NAME}" geladen. Puzzle wird gemischt...`;
+                initializePuzzle();
+            };
+            img.onerror = () => {
+                messageDiv.textContent = `Standardbild "${DEFAULT_IMAGE_NAME}" nicht gefunden. Bitte lade ein Bild hoch.`;
+                imageLoaded = false;
+                referenceImg.style.display = 'none';
+                referenceContainer.style.display = 'none';
+                initializePuzzle(); 
+            };
+            img.src = DEFAULT_IMAGE_NAME; 
+        }
+
+        referenceContainer.style.display = 'none'; 
+        attemptLoadDefaultImage(); 
+
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Schiebepuzzle / Sliding Puzzle / Puzzle Scorrevole
 
-![Puzzle Screenshot](puzzle_image.jpg)
+![Puzzle Screenshot](SlidingPuzzle.jpg)
 
 ## Deutsch 🇩🇪
 

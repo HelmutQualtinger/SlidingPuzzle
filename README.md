@@ -1,103 +1,97 @@
 # Schiebepuzzle / Sliding Puzzle / Puzzle Scorrevole
 
-![Puzzle Screenshot](SlidingPuzzle.jpg)
+![Puzzle Screenshot](puzzle_image.jpg)
 
 ## Deutsch 🇩🇪
 
 ### Beschreibung
-Dieses Projekt beinhaltet zwei verschiedene Implementierungen eines klassischen Schiebepuzzles:
-- Eine Desktop-Version in Python mit Tkinter
-- Eine Webversion in HTML, CSS und JavaScript
 
-In beiden Versionen kann der Benutzer ein eigenes Bild als Puzzlevorlage verwenden und ganze Reihen oder Spalten verschieben, um das Puzzle zu lösen.
+Ein klassisches 15-Puzzle (4x4 Schiebepuzzle) als interaktive Webanwendung. Die Implementierung erfolgt vollständig in einer HTML-Datei mit eingebettetem CSS und JavaScript und ist sowohl für Desktop als auch für mobile Geräte optimiert.
 
-### Features
-- **Bildbasiertes Puzzle**: Verwende dein eigenes JPEG-Bild als Puzzlevorlage
-- **Reihen/Spalten-Bewegung**: Verschiebe ganze Reihen oder Spalten auf einmal
-- **Lösbarkeits-Garantie**: Alle generierten Puzzles sind garantiert lösbar
-- **Referenzbild**: Anzeige des vollständigen Originalbildes als Referenz
-- **Responsive Design** (HTML-Version): Angepasst für Desktop- und Mobilgeräte
+### Merkmale
+
+- **Bildbasiertes Puzzle**: Verwende dein eigenes JPEG-Bild oder das im Verzeichnis gespeicherte Standardbild
+- **Reihen/Spalten-Bewegung**: Verschiebe ganze Reihen oder Spalten mit einem Klick/Tap
+- **Responsive Design**: Automatische Anpassung an verschiedene Bildschirmgrößen
+- **Touch-Support**: Optimiert für Touchscreens und mobile Geräte
+- **Referenzbild**: Das komplette Originalbild wird als Vorlage angezeigt
+- **Offline-Nutzung**: Funktioniert vollständig ohne Internetverbindung
 
 ### Verwendung
 
-#### Python-Version:
-1. Platziere eine JPEG-Datei im selben Verzeichnis wie `Puzzle.py`
-2. Führe das Skript aus: `python Puzzle.py`
-3. Das Programm lädt automatisch die erste gefundene JPEG-Datei
-
-#### HTML-Version:
-1. Öffne `puzzle.html` in einem Browser
+1. Öffne die Datei `puzzle.html` in einem modernen Webbrowser
 2. Das Programm versucht automatisch, eine Datei namens `puzzle_image.jpg` zu laden
-3. Alternativ kannst du über den Upload-Button ein eigenes Bild auswählen
+3. Alternativ kannst du über den Upload-Button ein eigenes JPEG-Bild hochladen
+4. Verschiebe die Kacheln durch Klicken/Tippen, um das Puzzle zu lösen
+5. Wenn du auf eine Kachel in derselben Reihe oder Spalte wie das leere Feld klickst, werden alle dazwischenliegenden Kacheln verschoben
 
-### Anforderungen
-- Python-Version: Python 3.x und Pillow-Bibliothek (`pip install Pillow`)
-- HTML-Version: Moderner Webbrowser mit JavaScript-Unterstützung
+### Technische Details
+
+- Reine Frontend-Implementierung mit HTML5, CSS3 und ES6 JavaScript
+- Dynamische Bildanpassung für verschiedene Bildschirmgrößen
+- CSS Grid und Flexbox für responsive Layout
+- Media Queries für optimierte mobile Darstellung
 
 ---
 
 ## English 🇬🇧
 
 ### Description
-This project includes two different implementations of a classic sliding puzzle:
-- A desktop version in Python using Tkinter
-- A web version using HTML, CSS, and JavaScript
 
-In both versions, users can use their own image as the puzzle template and move entire rows or columns to solve the puzzle.
+A classic 15-puzzle (4x4 sliding puzzle) as an interactive web application. The implementation is contained entirely within a single HTML file with embedded CSS and JavaScript, optimized for both desktop and mobile devices.
 
 ### Features
-- **Image-based puzzle**: Use your own JPEG image as the puzzle template
-- **Row/Column movement**: Move entire rows or columns at once
-- **Solvability guarantee**: All generated puzzles are guaranteed to be solvable
-- **Reference image**: Display of the complete original image for reference
-- **Responsive design** (HTML version): Adapted for desktop and mobile devices
+
+- **Image-based puzzle**: Use your own JPEG image or the default image stored in the directory
+- **Row/Column movement**: Move entire rows or columns with a single click/tap
+- **Responsive design**: Automatically adapts to different screen sizes
+- **Touch support**: Optimized for touchscreens and mobile devices
+- **Reference image**: The complete original image is displayed as a template
+- **Offline usage**: Works entirely without an internet connection
 
 ### Usage
 
-#### Python Version:
-1. Place a JPEG file in the same directory as `Puzzle.py`
-2. Run the script: `python Puzzle.py`
-3. The program automatically loads the first JPEG file found
-
-#### HTML Version:
-1. Open `puzzle.html` in a browser
+1. Open the `puzzle.html` file in a modern web browser
 2. The program automatically tries to load a file named `puzzle_image.jpg`
-3. Alternatively, you can select your own image using the upload button
+3. Alternatively, you can upload your own JPEG image using the upload button
+4. Move the tiles by clicking/tapping to solve the puzzle
+5. When you click on a tile in the same row or column as the empty space, all tiles in between will move
 
-### Requirements
-- Python version: Python 3.x and Pillow library (`pip install Pillow`)
-- HTML version: Modern web browser with JavaScript support
+### Technical Details
+
+- Pure frontend implementation with HTML5, CSS3, and ES6 JavaScript
+- Dynamic image adaptation for different screen sizes
+- CSS Grid and Flexbox for responsive layout
+- Media queries for optimized mobile display
 
 ---
 
 ## Italiano 🇮🇹
 
 ### Descrizione
-Questo progetto include due diverse implementazioni del classico puzzle scorrevole:
-- Una versione desktop in Python con Tkinter
-- Una versione web in HTML, CSS e JavaScript
 
-In entrambe le versioni, l'utente può utilizzare una propria immagine come modello per il puzzle e spostare intere righe o colonne per risolverlo.
+Un classico puzzle 15 (puzzle scorrevole 4x4) come applicazione web interattiva. L'implementazione è contenuta interamente in un singolo file HTML con CSS e JavaScript incorporati, ottimizzato sia per desktop che per dispositivi mobili.
 
 ### Caratteristiche
-- **Puzzle basato su immagini**: Utilizza la tua immagine JPEG come modello per il puzzle
-- **Movimento di righe/colonne**: Sposta intere righe o colonne contemporaneamente
-- **Garanzia di risolvibilità**: Tutti i puzzle generati sono garantiti risolvibili
-- **Immagine di riferimento**: Visualizzazione dell'immagine originale completa come riferimento
-- **Design responsive** (versione HTML): Adattato per dispositivi desktop e mobili
+
+- **Puzzle basato su immagini**: Utilizza la tua immagine JPEG o l'immagine predefinita memorizzata nella directory
+- **Movimento di righe/colonne**: Sposta intere righe o colonne con un solo clic/tap
+- **Design responsivo**: Si adatta automaticamente a diverse dimensioni dello schermo
+- **Supporto touch**: Ottimizzato per touchscreen e dispositivi mobili
+- **Immagine di riferimento**: L'immagine originale completa viene visualizzata come modello
+- **Utilizzo offline**: Funziona completamente senza connessione Internet
 
 ### Utilizzo
 
-#### Versione Python:
-1. Posiziona un file JPEG nella stessa directory di `Puzzle.py`
-2. Esegui lo script: `python Puzzle.py`
-3. Il programma carica automaticamente il primo file JPEG trovato
+1. Apri il file `puzzle.html` in un browser web moderno
+2. Il programma tenta automaticamente di caricare un file chiamato `puzzle_image.jpg`
+3. In alternativa, puoi caricare la tua immagine JPEG utilizzando il pulsante di caricamento
+4. Sposta le tessere cliccando/toccando per risolvere il puzzle
+5. Quando fai clic su una tessera nella stessa riga o colonna dello spazio vuoto, tutte le tessere intermedie si sposteranno
 
-#### Versione HTML:
-1. Apri `puzzle.html` in un browser
-2. Il programma tenta di caricare automaticamente un file chiamato `puzzle_image.jpg`
-3. In alternativa, puoi selezionare una tua immagine tramite il pulsante di caricamento
+### Dettagli Tecnici
 
-### Requisiti
-- Versione Python: Python 3.x e libreria Pillow (`pip install Pillow`)
-- Versione HTML: Browser web moderno con supporto JavaScript
+- Implementazione frontend pura con HTML5, CSS3 e JavaScript ES6
+- Adattamento dinamico delle immagini per diverse dimensioni dello schermo
+- CSS Grid e Flexbox per un layout responsive
+- Media query per una visualizzazione mobile ottimizzata

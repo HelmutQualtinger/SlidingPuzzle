@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>15 Puzzle</title>
     <style>
+        /* ======== GRUNDLEGENDES STYLING ======== */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -17,6 +18,8 @@
             font-size: 1.8em;
             margin-bottom: 10px;
         }
+
+        /* ======== PUZZLE-LAYOUT ======== */
         #game-area {
             display: flex;
             flex-direction: row;
@@ -34,13 +37,15 @@
             box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
             position: relative;
         }
+
+        /* ======== KACHELN ======== */
         .tile {
             width: 75px;
             height: 75px;
             box-sizing: border-box;
             border: 1px solid #ccc;
             background-color: #fff;
-            background-size: 400px 400px;
+            background-size: 300px 300px; /* Angepasst für 75px x 4 = 300px */
             background-repeat: no-repeat;
             display: flex;
             justify-content: center;
@@ -50,7 +55,7 @@
             cursor: pointer;
             user-select: none;
             transition: transform 0.1s ease-in-out;
-            touch-action: manipulation; /* Verbesserung für Touch-Geräte */
+            touch-action: manipulation;
         }
         .tile:hover {
             box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
@@ -61,6 +66,8 @@
             border: 1px solid #aaa;
             cursor: default;
         }
+
+        /* ======== STEUERUNG & MELDUNGEN ======== */
         #controls {
             width: 100%;
             max-width: 400px;
@@ -84,6 +91,8 @@
             min-height: 1.5em;
             text-align: center;
         }
+
+        /* ======== REFERENZBILD ======== */
         #reference-image-container {
             border: 2px solid #333;
             box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
@@ -97,7 +106,7 @@
             object-fit: contain;
         }
 
-        /* Media Queries für verschiedene Bildschirmgrößen */
+        /* ======== RESPONSIVE DESIGN ======== */
         @media (max-width: 768px) {
             #game-area {
                 flex-direction: column;
@@ -111,6 +120,7 @@
                 width: 70px;
                 height: 70px;
                 font-size: 15px;
+                background-size: 280px 280px; /* Angepasst für 70px x 4 = 280px */
             }
             #reference-image-container {
                 margin-top: 15px;
@@ -131,6 +141,7 @@
                 width: 60px;
                 height: 60px;
                 font-size: 14px;
+                background-size: 240px 240px; /* Angepasst für 60px x 4 = 240px */
             }
             #reference-image-container {
                 width: 240px;
@@ -150,6 +161,7 @@
                 width: 48px;
                 height: 48px;
                 font-size: 12px;
+                background-size: 192px 192px; /* Angepasst für 48px x 4 = 192px */
             }
             #reference-image-container {
                 width: 192px;
@@ -175,8 +187,9 @@
     <div id="message"></div>
 
     <script>
+        // ======== KONSTANTEN & GLOBALE VARIABLEN ========
         const GRID_SIZE = 4;
-        const TILE_SIZE = 100; // px (bleibt für JS-Berechnungen konstant)
+        const TILE_SIZE = 75; // Angepasst an die tatsächliche CSS-Kachelgröße
         const DEFAULT_IMAGE_NAME = "puzzle_image.jpg";
 
         let tiles = [];
@@ -185,13 +198,14 @@
         let imageLoaded = false;
         let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+        // DOM-Elemente
         const puzzleContainer = document.getElementById('puzzle-container');
         const messageDiv = document.getElementById('message');
         const imageUpload = document.getElementById('imageUpload');
         const referenceImg = document.getElementById('reference-img');
         const referenceContainer = document.getElementById('reference-image-container');
 
-        // Event-Listener für Datei-Upload
+        // ======== EVENT-LISTENER ========
         imageUpload.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file && file.type === "image/jpeg") {
@@ -215,6 +229,7 @@
             }
         });
 
+        // ======== PUZZLE-INITIALISIERUNG ========
         function initializePuzzle() {
             tiles = [];
             let num = 1;
@@ -236,8 +251,16 @@
             }
         }
 
+        // ======== PUZZLE-ANZEIGE ========
         function drawPuzzle() {
             puzzleContainer.innerHTML = '';
+            
+            // Aktuelle Kachelgröße aus CSS ermitteln
+            const computedStyle = getComputedStyle(puzzleContainer);
+            const templateCols = computedStyle.gridTemplateColumns.split(' ')[0];
+            const actualTileSize = parseInt(templateCols, 10);
+            const backgroundSize = actualTileSize * GRID_SIZE;
+            
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
                     const tileValue = tiles[r][c];
@@ -251,7 +274,8 @@
                             const originalRow = Math.floor((tileValue - 1) / GRID_SIZE);
                             const originalCol = (tileValue - 1) % GRID_SIZE;
                             tileDiv.style.backgroundImage = `url(${imageUrl})`;
-                            tileDiv.style.backgroundPosition = `-${originalCol * TILE_SIZE}px -${originalRow * TILE_SIZE}px`;
+                            tileDiv.style.backgroundSize = `${backgroundSize}px ${backgroundSize}px`;
+                            tileDiv.style.backgroundPosition = `-${originalCol * actualTileSize}px -${originalRow * actualTileSize}px`;
                         } else {
                             tileDiv.textContent = tileValue; 
                         }
@@ -271,6 +295,7 @@
             }
         }
 
+        // ======== PUZZLE-INTERAKTION ========
         function handleTileClick(r, c) {
             if (!imageLoaded) {
                 messageDiv.textContent = 'Bitte lade zuerst ein Bild.';
@@ -298,13 +323,14 @@
             }
         }
 
+        // ======== PUZZLE-LOGIK ========
         function shuffleTiles() {
             let moves = 0;
             const maxShuffleMoves = GRID_SIZE * GRID_SIZE * 10;
 
             let tempNum = 1;
             let tempTiles = [];
-             for (let r_idx = 0; r_idx < GRID_SIZE; r_idx++) {
+            for (let r_idx = 0; r_idx < GRID_SIZE; r_idx++) {
                 tempTiles[r_idx] = [];
                 for (let c_idx = 0; c_idx < GRID_SIZE; c_idx++) {
                     if (r_idx === GRID_SIZE - 1 && c_idx === GRID_SIZE - 1) {
@@ -356,6 +382,7 @@
             return true;
         }
 
+        // ======== BILDLADUNG ========
         function attemptLoadDefaultImage() {
             const img = new Image();
             img.onload = () => {
@@ -377,8 +404,13 @@
             img.src = DEFAULT_IMAGE_NAME; 
         }
 
+        // ======== STARTUP ========
         referenceContainer.style.display = 'none'; 
-        attemptLoadDefaultImage(); 
+        attemptLoadDefaultImage();
+        // Falls das Fenster größenmäßig verändert wird, Puzzle neu zeichnen
+        window.addEventListener('resize', () => {
+            if (imageLoaded) drawPuzzle();
+        });
     </script>
 </body>
 </html>

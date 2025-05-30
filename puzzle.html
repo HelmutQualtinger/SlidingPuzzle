@@ -185,6 +185,45 @@
                 height: 192px;
             }
         }
+
+        /* ======== MUSIK-STYLING ======== */
+        .music-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+        }
+        .music-button {
+            background-color: #7b0909;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .music-button:hover {
+            background-color: #a01010;
+        }
+        #volume-control {
+            width: 100px;
+            cursor: pointer;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pulse-animation {
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
     </style>
 </head>
 <body>
@@ -209,6 +248,16 @@
         <source src="https://soundbible.com/mp3/Ta Da-SoundBible.com-1884170640.mp3" type="audio/mpeg">
     </audio>
 
+    <audio id="background-music" loop>
+        <source src="harry_potter_theme.mp3" type="audio/mpeg">
+        <!-- Die Datei muss im gleichen Ordner wie die HTML-Datei liegen -->
+    </audio>
+
+    <div id="music-controls" class="music-controls">
+        <button id="toggle-music" class="music-button">🎵 Musik abspielen</button>
+        <input type="range" id="volume-control" min="0" max="100" value="30">
+    </div>
+
     <script>
         // ======== KONSTANTEN & GLOBALE VARIABLEN ========
         const GRID_SIZE = 4;
@@ -227,6 +276,11 @@
         const imageUpload = document.getElementById('imageUpload');
         const referenceImg = document.getElementById('reference-img');
         const referenceContainer = document.getElementById('reference-image-container');
+        const fanfareAudio = document.getElementById('fanfare');
+        const backgroundMusic = document.getElementById('background-music');
+        const toggleMusicButton = document.getElementById('toggle-music');
+        const volumeControl = document.getElementById('volume-control');
+        let musicPlaying = false;
 
         // ======== EVENT-LISTENER ========
         imageUpload.addEventListener('change', (event) => {
@@ -250,6 +304,26 @@
                     messageDiv.textContent = 'Bitte lade ein JPEG-Bild.';
                 }
             }
+        });
+
+        // Musiksteuerung
+        toggleMusicButton.addEventListener('click', () => {
+            if (musicPlaying) {
+                backgroundMusic.pause();
+                toggleMusicButton.textContent = '🎵 Musik abspielen';
+                musicPlaying = false;
+            } else {
+                backgroundMusic.play()
+                    .catch(error => {
+                        console.warn("Autoplay wurde vom Browser blockiert:", error);
+                    });
+                toggleMusicButton.textContent = '🔇 Musik pausieren';
+                musicPlaying = true;
+            }
+        });
+
+        volumeControl.addEventListener('input', () => {
+            backgroundMusic.volume = volumeControl.value / 100;
         });
 
         // ======== PUZZLE-INITIALISIERUNG ========
@@ -480,6 +554,54 @@
         window.addEventListener('resize', () => {
             if (imageLoaded) drawPuzzle();
         });
+
+        // Direkte Ausführung statt DOMContentLoaded-Event, da wir bereits am Ende des Scripts sind
+        // Browser benötigen eine Nutzerinteraktion für Autoplay
+        window.addEventListener('click', startMusicOnFirstInteraction, { once: true });
+        window.addEventListener('touchstart', startMusicOnFirstInteraction, { once: true });
+        document.addEventListener('keydown', startMusicOnFirstInteraction, { once: true });
+
+        // Deutlichen Hinweis anzeigen, dass der Nutzer etwas anklicken muss
+        const musicHint = document.createElement('div');
+        musicHint.id = 'music-hint';
+        musicHint.textContent = "Klicke irgendwo auf die Seite, um die Harry-Potter-Musik zu starten";
+        musicHint.style.position = "fixed";
+        musicHint.style.top = "50%";
+        musicHint.style.left = "50%";
+        musicHint.style.transform = "translate(-50%, -50%)";
+        musicHint.style.backgroundColor = "rgba(0,0,0,0.8)";
+        musicHint.style.color = "white";
+        musicHint.style.padding = "20px";
+        musicHint.style.borderRadius = "10px";
+        musicHint.style.fontSize = "18px";
+        musicHint.style.textAlign = "center";
+        musicHint.style.zIndex = "1000";
+        musicHint.style.maxWidth = "80%";
+        musicHint.style.boxShadow = "0 0 20px rgba(123, 9, 9, 0.7)";
+        document.body.appendChild(musicHint);
+
+        function startMusicOnFirstInteraction() {
+            // Entferne die Event-Listener
+            window.removeEventListener('click', startMusicOnFirstInteraction);
+            window.removeEventListener('touchstart', startMusicOnFirstInteraction);
+            document.removeEventListener('keydown', startMusicOnFirstInteraction);
+            
+            // Entferne den Hinweis
+            const hint = document.getElementById('music-hint');
+            if (hint) hint.remove();
+            
+            // Starte die Musik
+            backgroundMusic.volume = volumeControl.value / 100;
+            backgroundMusic.play()
+                .then(() => {
+                    musicPlaying = true;
+                    toggleMusicButton.textContent = '🔇 Musik pausieren';
+                })
+                .catch(error => {
+                    console.error("Fehler beim Abspielen der Musik:", error);
+                    toggleMusicButton.classList.add('pulse-animation');
+                });
+        }
     </script>
 </body>
 </html>

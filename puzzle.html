@@ -12,11 +12,19 @@
             flex-direction: column;
             align-items: center;
             margin: 10px;
-            background-color: #f0f0f0;
+            /* Dunkler Overlay über dem Hintergrundbild */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                              url('https://contentful.harrypotter.com/usf1vwtuqyxm/7jtm2fvxWBptLdLIWAAGg0/91912351116a6d5924864422d3aff6a2/UOR_HogwartsLights_Hogsmeade.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: white; /* Bei dunklem Hintergrund weißen Text verwenden */
         }
         h1 {
             font-size: 1.8em;
             margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
         /* ======== PUZZLE-LAYOUT ======== */
@@ -34,7 +42,7 @@
             grid-template-columns: repeat(4, 75px);
             grid-template-rows: repeat(4, 75px);
             border: 2px solid #333;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
             position: relative;
         }
 
@@ -75,6 +83,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            background-color: rgba(255,255,255,0.8);
+            padding: 10px;
+            border-radius: 8px;
+            color: black;
         }
         #controls label {
             font-size: 0.9em;
@@ -90,12 +102,17 @@
             color: green;
             min-height: 1.5em;
             text-align: center;
+            background-color: rgba(255,255,255,0.8);
+            padding: 8px;
+            border-radius: 5px;
+            color: darkgreen;
+            font-weight: bold;
         }
 
         /* ======== REFERENZBILD ======== */
         #reference-image-container {
             border: 2px solid #333;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
             width: 300px;
             height: 300px;
         }
@@ -172,11 +189,6 @@
 </head>
 <body>
     <h1>15 Puzzle</h1>
-    <div id="controls">
-        <label for="imageUpload">Wähle ein JPEG-Bild (oder "puzzle_image.jpg" wird geladen):</label>
-        <input type="file" id="imageUpload" accept="image/jpeg">
-    </div>
-
     <div id="game-area">
         <div id="puzzle-container"></div>
         <div id="reference-image-container">
@@ -185,6 +197,17 @@
     </div>
 
     <div id="message"></div>
+
+    <div id="controls">
+        <label for="imageUpload">JPEG-Bild auswählen</label>
+        <input type="file" id="imageUpload" accept="image/jpeg">
+    </div>
+
+    <audio id="fanfare" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/fanfare-1.mp3" type="audio/mpeg">
+        <!-- Fallback-Quelle -->
+        <source src="https://soundbible.com/mp3/Ta Da-SoundBible.com-1884170640.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         // ======== KONSTANTEN & GLOBALE VARIABLEN ========
@@ -336,7 +359,7 @@
                     if (r_idx === GRID_SIZE - 1 && c_idx === GRID_SIZE - 1) {
                         tempTiles[r_idx][c_idx] = null;
                     } else {
-                        tempTiles[r_idx][c_idx] = tempNum++;
+                        tempTiles[r_idx][c_idx] = tempNum++; // Diese Zeile war fehlerhaft
                     }
                 }
             }
@@ -373,7 +396,14 @@
                     }
                 }
             }
+            
+            // Puzzle wurde gelöst!
             messageDiv.textContent = "Glückwunsch! Du hast das Puzzle gelöst!";
+            
+            // Fanfare abspielen
+            playFanfare();
+            
+            // Kacheln deaktivieren
             puzzleContainer.querySelectorAll('.tile:not(.empty)').forEach(tile => {
                 const newTile = tile.cloneNode(true);
                 tile.parentNode.replaceChild(newTile, tile);
@@ -382,10 +412,40 @@
             return true;
         }
 
+        // Neue Funktion zum Abspielen der Fanfare
+        function playFanfare() {
+            const fanfare = document.getElementById('fanfare');
+            
+            // Audio zurücksetzen, falls es zuvor schon abgespielt wurde
+            fanfare.pause();
+            fanfare.currentTime = 0;
+            
+            // Lautstärke einstellen (Wert zwischen 0 und 1)
+            fanfare.volume = 0.7;
+            
+            // Versuche, den Sound abzuspielen
+            const playPromise = fanfare.play();
+            
+            // Fehlerbehandlung für Browser, die Autoplay blockieren
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Autoplay wurde vom Browser blockiert:", error);
+                    // Optional: Zeige einen Button an, mit dem der Benutzer den Sound manuell starten kann
+                    const playButton = document.createElement('button');
+                    playButton.innerText = "🎺 Fanfare abspielen";
+                    playButton.style.margin = "10px";
+                    playButton.onclick = function() { fanfare.play(); this.remove(); };
+                    messageDiv.appendChild(playButton);
+                });
+            }
+        }
+
         // ======== BILDLADUNG ========
         function attemptLoadDefaultImage() {
             const img = new Image();
+            
             img.onload = () => {
+                console.log("Bild erfolgreich geladen:", DEFAULT_IMAGE_NAME);
                 imageUrl = DEFAULT_IMAGE_NAME; 
                 imageLoaded = true;
                 referenceImg.src = imageUrl; 
@@ -394,13 +454,22 @@
                 messageDiv.textContent = `Standardbild geladen. Puzzle wird gemischt...`;
                 initializePuzzle();
             };
-            img.onerror = () => {
-                messageDiv.textContent = `Standardbild nicht gefunden. Bitte lade ein Bild hoch.`;
+            
+            img.onerror = (e) => {
+                console.error("Fehler beim Laden des Bildes:", e);
+                messageDiv.textContent = `Fehler: Bild "${DEFAULT_IMAGE_NAME}" nicht gefunden. Bitte lade ein Bild hoch.`;
                 imageLoaded = false;
                 referenceImg.style.display = 'none';
                 referenceContainer.style.display = 'none';
+                
+                // Zeige den Datei-Upload-Dialog deutlicher an
+                document.getElementById('imageUpload').style.border = "2px solid red";
+                document.getElementById('imageUpload').style.padding = "10px";
                 initializePuzzle(); 
             };
+            
+            // Versuche, das Bild zu laden
+            console.log("Versuche, Bild zu laden:", DEFAULT_IMAGE_NAME);
             img.src = DEFAULT_IMAGE_NAME; 
         }
 

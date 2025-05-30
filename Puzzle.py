@@ -5,6 +5,7 @@ import random                 # Für das zufällige Mischen der Kacheln
 from tkinter import messagebox # Für Benachrichtigungsfenster
 from PIL import Image, ImageTk # Für Bildverarbeitung und -anzeige
 
+
 # Konstanten für das Spiellayout
 TILE_SIZE = 100               # Größe jeder Kachel in Pixeln
 GRID_SIZE = 5                 # Spielfeldgröße (5x5 ergibt ein 24-Puzzle)
@@ -318,7 +319,6 @@ class SlidingPuzzle(tk.Frame):
 # Hauptprogramm
 if __name__ == "__main__":
     if not IMAGE_FILE:
-        # Wenn keine Bilddatei gefunden wurde
         print("Keine JPEG-Datei im aktuellen Verzeichnis gefunden.")
         messagebox.showerror("Fehler", "Keine JPEG-Datei gefunden. Bitte lege eine Bilddatei im Programmverzeichnis ab.")
     else:
@@ -326,4 +326,16 @@ if __name__ == "__main__":
         root = tk.Tk()
         root.title("Sliding Puzzle")
         app = SlidingPuzzle(root, IMAGE_FILE)
+        
+        # Fenstergröße und -position korrekt initialisieren
+        root.update_idletasks()
+        
+        # Anwendung in den Vordergrund bringen
+        root.lift()            # Hebt das Fenster über andere
+        root.attributes('-topmost', True)  # Setzt es temporär als oberstes Fenster
+        
+
+
+        
+        # Jetzt die Ereignisschleife starten
         root.mainloop()  # Ereignisschleife starten

@@ -1,7 +1,7 @@
 # Schiebepuzzle / Sliding Puzzle / Puzzle Scorrevole
 
 ![Puzzle Screenshot](SlidingPuzzle.jpg)
-[Online Demo](https://qualcuno.info/Puzzle/puzzle.htm)
+[Online Demo](https://qualcuno.info/SlidingPuzzle/puzzle.htm)
 
 ## Deutsch 🇩🇪
 
